@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#080d17">
+<title>HACKRR — Guild Glory Bot</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{
+  --bg-deep:#080d17; --bg-panel:rgba(17,24,39,.72); --bg-panel-2:rgba(10,15,28,.85);
+  --border-soft:rgba(234,179,8,.14); --border-strong:rgba(234,179,8,.45);
+  --accent-primary:#eab308; --accent-secondary:#22c55e; --accent-highlight:#f97316;
+  --accent-purple:#8b5cf6; --accent-danger:#ef4444;
+  --text-primary:#e5eaf3; --text-dim:#94a3b8; --text-faint:#64748b;
+  --safe-b:env(safe-area-inset-bottom, 0px); --safe-t:env(safe-area-inset-top, 0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{font-family:'Space Grotesk',system-ui,sans-serif;background:#04070d;
+  background-image:radial-gradient(circle at 20% 0%, rgba(234,179,8,.10) 0%, transparent 45%),
+    radial-gradient(circle at 80% 100%, rgba(34,197,94,.10) 0%, transparent 45%);
+  color:var(--text-primary);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:rgba(234,179,8,.3);border-radius:4px}
+.phone{position:relative;width:100%;max-width:430px;height:100dvh;background:var(--bg-deep);
+  background-image:radial-gradient(circle at 0% 0%, rgba(234,179,8,.13) 0%, transparent 50%),
+    radial-gradient(circle at 100% 90%, rgba(249,115,22,.10) 0%, transparent 50%),
+    linear-gradient(170deg,#080d17 0%,#0c1322 100%);
+  display:flex;flex-direction:column;overflow:hidden;}
+@media(min-width:520px){.phone{height:min(880px,95dvh);border-radius:38px;
+  border:1px solid rgba(234,179,8,.20);
+  box-shadow:0 40px 90px -24px rgba(0,0,0,.95), 0 0 0 9px rgba(255,255,255,.025);}}
+.appbar{flex-shrink:0;padding:calc(14px + var(--safe-t)) 16px 12px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:rgba(8,13,23,.82);backdrop-filter:blur(18px);
+  border-bottom:1px solid rgba(255,255,255,.05);position:relative;z-index:20;}
+.appbar::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--accent-primary),var(--accent-secondary),transparent);opacity:.55;}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}
+.logo{width:42px;height:42px;flex-shrink:0;border-radius:13px;
+  background:linear-gradient(135deg,var(--accent-primary),var(--accent-highlight));
+  display:grid;place-items:center;font-size:18px;color:#000;
+  box-shadow:0 8px 22px -8px rgba(234,179,8,.85);}
+.brand h1{font-size:16px;font-weight:700;letter-spacing:-.3px;line-height:1.1;
+  background:linear-gradient(90deg,#f0f4fc,var(--accent-primary));
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap;}
+.brand small{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;
+  letter-spacing:1.6px;color:var(--accent-secondary);font-weight:600;margin-top:3px;}
+.live-pill{display:inline-flex;align-items:center;gap:5px;flex-shrink:0;
+  background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);
+  color:var(--accent-secondary);padding:5px 10px;border-radius:20px;
+  font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;}
+.live-pill.off{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.3);color:var(--accent-danger)}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--accent-secondary);
+  box-shadow:0 0 8px var(--accent-secondary);animation:blink 1.4s infinite;}
+.live-dot.off{background:var(--accent-danger);box-shadow:0 0 8px var(--accent-danger);animation:none}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.7)}}
+.screens{flex:1;overflow:hidden;position:relative;}
+.screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;padding:16px 16px 26px;display:none;-webkit-overflow-scrolling:touch;}
+.screen.active{display:block;animation:fadeUp .28s cubic-bezier(.4,0,.2,1);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.sec-title{display:flex;align-items:center;justify-content:space-between;margin:4px 2px 12px;}
+.sec-title h2{font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;}
+.sec-title span{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--text-faint);}
+.guild-input-row{display:flex;gap:8px;margin-bottom:14px;}
+.guild-input-row input{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(234,179,8,.2);border-radius:13px;padding:14px 15px;color:#fff;font-size:14px;outline:none;font-family:'JetBrains Mono',monospace;letter-spacing:.5px;}
+.guild-input-row input:focus{border-color:var(--accent-primary);box-shadow:0 0 0 3px rgba(234,179,8,.12)}
+.guild-input-row button{padding:14px 18px;border-radius:13px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--accent-primary),var(--accent-highlight));color:#000;font-weight:700;font-size:13px;transition:.2s;}
+.guild-input-row button:active{transform:scale(.96)}
+.guild-card{background:linear-gradient(135deg,rgba(234,179,8,.18),rgba(249,115,22,.14));border:1px solid var(--border-strong);border-radius:20px;padding:18px;margin-bottom:16px;backdrop-filter:blur(12px);display:none;position:relative;overflow:hidden;}
+.guild-card.show{display:block;animation:fadeUp .3s}
+.guild-header{display:flex;align-items:center;gap:14px;margin-bottom:14px;position:relative;z-index:1;}
+.guild-badge{width:54px;height:54px;border-radius:16px;flex-shrink:0;background:linear-gradient(135deg,var(--accent-primary),var(--accent-highlight));display:grid;place-items:center;font-size:22px;color:#000;}
+.guild-title h3{font-size:17px;font-weight:700;color:#fff;margin-bottom:3px}
+.guild-title p{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim);}
+.guild-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;position:relative;z-index:1;}
+.gs-cell{background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:10px;text-align:center;}
+.gs-val{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:#fff;display:block}
+.gs-lbl{font-size:9px;color:var(--text-dim);text-transform:uppercase;margin-top:3px;display:block}
+.btn{padding:15px;border-radius:14px;border:none;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13.5px;transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-bottom:10px;}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:linear-gradient(135deg,var(--accent-primary),var(--accent-highlight));color:#000;box-shadow:0 10px 30px -10px rgba(234,179,8,.6)}
+.btn-purple{background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;box-shadow:0 10px 30px -10px rgba(139,92,246,.6)}
+.btn-danger{background:rgba(239,68,68,.14);border:1px solid rgba(239,68,68,.32);color:#f87171}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.stat-card{background:var(--bg-panel);border:1px solid var(--border-soft);border-radius:18px;padding:15px;display:flex;flex-direction:column;gap:11px;}
+.stat-ico{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;font-size:15px}
+.ic-gold{background:rgba(234,179,8,.15);color:var(--accent-primary)}
+.ic-green{background:rgba(34,197,94,.15);color:var(--accent-secondary)}
+.ic-orange{background:rgba(249,115,22,.15);color:var(--accent-highlight)}
+.ic-blue{background:rgba(59,130,246,.15);color:#3b82f6}
+.stat-card h3{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:#fff;}
+.stat-card p{font-size:9.5px;color:var(--text-dim);text-transform:uppercase;font-weight:600}
+.progress-card{background:var(--bg-panel);border:1px solid var(--border-soft);border-radius:18px;padding:16px;margin-bottom:16px}
+.progress-head{display:flex;justify-content:space-between;margin-bottom:10px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700}
+.progress-head .left{color:var(--accent-primary)}
+.progress-head .right{color:var(--text-dim)}
+.progress-bg{height:8px;background:rgba(255,255,255,.07);border-radius:10px;overflow:hidden;margin-bottom:8px}
+.progress-fill{height:100%;border-radius:10px;transition:width .5s ease;background:linear-gradient(90deg,var(--accent-primary),var(--accent-secondary));box-shadow:0 0 12px rgba(234,179,8,.5)}
+.progress-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-faint)}
+.mini-log{background:var(--bg-panel-2);border:1px solid rgba(234,179,8,.10);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:7px;font-family:'JetBrains Mono',monospace;font-size:10.5px;max-height:220px;overflow-y:auto}
+.mini-log .row{display:flex;gap:7px;line-height:1.45}
+.acc-list{display:flex;flex-direction:column;gap:10px}
+.acc-card{background:var(--bg-panel-2);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:13px;display:flex;align-items:center;gap:11px;}
+.acc-card.joined{border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.05)}
+.acc-card.pending{border-color:rgba(234,179,8,.25)}
+.acc-card.failed{border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.05)}
+.acc-avatar{width:38px;height:38px;flex-shrink:0;border-radius:12px;background:linear-gradient(135deg,rgba(234,179,8,.22),rgba(249,115,22,.22));border:1px solid rgba(234,179,8,.3);display:grid;place-items:center;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14px;color:var(--accent-primary);}
+.acc-meta{flex:1;min-width:0}
+.acc-meta h4{font-size:13px;font-weight:700;color:#fff;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acc-meta span{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-faint)}
+.acc-state{font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:5px 9px;border-radius:20px;text-transform:uppercase;flex-shrink:0;}
+.state-joined{background:rgba(34,197,94,.15);color:var(--accent-secondary);border:1px solid rgba(34,197,94,.3)}
+.state-pending{background:rgba(234,179,8,.15);color:var(--accent-primary);border:1px solid rgba(234,179,8,.3)}
+.state-failed{background:rgba(239,68,68,.15);color:var(--accent-danger);border:1px solid rgba(239,68,68,.3)}
+.tabbar{flex-shrink:0;display:grid;grid-template-columns:repeat(3,1fr);background:rgba(8,13,23,.92);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.06);padding:9px 6px calc(9px + var(--safe-b));position:relative;z-index:20;}
+.tabbar::before{content:'';position:absolute;top:-1px;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(234,179,8,.5),transparent);}
+.tab{background:none;border:none;cursor:pointer;color:var(--text-faint);display:flex;flex-direction:column;align-items:center;gap:5px;padding:6px 0;font-family:'Space Grotesk',sans-serif;transition:.22s;position:relative;}
+.tab i{font-size:17px;transition:.22s}
+.tab span{font-size:9.5px;font-weight:600}
+.tab.active{color:var(--accent-primary)}
+.tab.active i{transform:translateY(-2px);filter:drop-shadow(0 0 8px rgba(234,179,8,.8))}
+.tab.active::before{content:'';position:absolute;top:-9px;width:26px;height:3px;border-radius:0 0 4px 4px;background:linear-gradient(90deg,var(--accent-primary),var(--accent-highlight));box-shadow:0 0 12px rgba(234,179,8,.9);}
+.toast-wrap{position:absolute;top:calc(72px + var(--safe-t));left:16px;right:16px;z-index:60;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.toast{background:rgba(13,20,36,.96);border:1px solid var(--border-strong);border-left:3px solid var(--accent-primary);border-radius:13px;padding:12px 15px;font-size:12.5px;font-weight:600;color:var(--text-primary);box-shadow:0 14px 34px -10px rgba(0,0,0,.9);animation:toastIn .3s;display:flex;align-items:center;gap:10px;}
+.toast.success{border-left-color:var(--accent-secondary)}
+.toast.error{border-left-color:var(--accent-danger)}
+.toast.warn{border-left-color:#f59e0b}
+@keyframes toastIn{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+.log-stream{background:#04070f;border:1px solid rgba(234,179,8,.10);border-radius:16px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:10.5px;line-height:1.6;min-height:400px;display:flex;flex-direction:column;gap:5px;}
+.log-item{word-break:break-word}
+.log-t{color:#475569;margin-right:6px}
+.log-info{color:#eab308} .log-success{color:#34d399} .log-warning{color:#fbbf24} .log-error{color:#f87171}
+</style>
+</head>
+<body>
+<div class="phone">
+  <header class="appbar">
+    <div class="brand">
+      <div class="logo"><i class="fa-solid fa-shield-halved"></i></div>
+      <div>
+        <h1>HACKRR</h1>
+        <small>GUILD GLORY BOT</small>
+      </div>
+    </div>
+    <span class="live-pill off" id="livePill"><span class="live-dot off"></span><span id="pillTxt"> IDLE</span></span>
+  </header>
+
+  <div class="screens">
+    <section class="screen active" id="screen-main">
+      <div class="sec-title"><h2><i class="fa-solid fa-crown" style="color:var(--accent-primary)"></i> Guild Setup</h2></div>
+
+      <div class="guild-input-row">
+        <input type="text" id="guildIdInput" placeholder="Guild ID (e.g. 3055508083)" inputmode="numeric">
+        <button onclick="fetchGuildInfo()"><i class="fa-solid fa-magnifying-glass"></i></button>
+      </div>
+
+      <div class="guild-card" id="guildCard">
+        <div class="guild-header">
+          <div class="guild-badge"><i class="fa-solid fa-shield-halved"></i></div>
+          <div class="guild-title">
+            <h3 id="gName">—</h3>
+            <p>ID: <span id="gId">—</span></p>
+          </div>
+        </div>
+        <div class="guild-stats">
+          <div class="gs-cell"><span class="gs-val" id="gLevel">—</span><span class="gs-lbl">Level</span></div>
+          <div class="gs-cell"><span class="gs-val" id="gMembers">—</span><span class="gs-lbl">Members</span></div>
+          <div class="gs-cell"><span class="gs-val" id="gGlory">—</span><span class="gs-lbl">Glory</span></div>
+        </div>
+      </div>
+
+      <div class="sec-title" style="margin-top:8px">
+        <h2><i class="fa-solid fa-users-gear" style="color:var(--accent-secondary)"></i> Join Bots</h2>
+      </div>
+
+      <button class="btn btn-primary" onclick="startBot(4)">
+        <i class="fa-solid fa-play"></i> JOIN 4 BOTS (1 SQUAD)
+      </button>
+      <button class="btn btn-purple" onclick="startBot(8)">
+        <i class="fa-solid fa-users"></i> JOIN 8 BOTS (2 SQUADS)
+      </button>
+      <button class="btn btn-danger" onclick="resetGuild()">
+        <i class="fa-solid fa-trash"></i> RESET JOINED LIST
+      </button>
+
+      <div class="progress-card">
+        <div class="progress-head">
+          <span class="left">JOINED TOTAL</span>
+          <span class="right" id="progText">0</span>
+        </div>
+        <div class="progress-sub" id="progSub">Waiting...</div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-ico ic-green"><i class="fa-solid fa-user-check"></i></div>
+          <div><h3 id="sJoined">0</h3><p>Total Joined</p></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-ico ic-gold"><i class="fa-solid fa-people-group"></i></div>
+          <div><h3 id="sSquad">0</h3><p>Active Squads</p></div>
+        </div>
+      </div>
+
+      <div class="sec-title">
+        <h2><i class="fa-solid fa-wave-square" style="color:var(--accent-secondary)"></i> Live Activity</h2>
+      </div>
+      <div class="mini-log" id="miniLog"></div>
+    </section>
+
+    <section class="screen" id="screen-accounts">
+      <div class="sec-title">
+        <h2><i class="fa-solid fa-user-astronaut" style="color:var(--accent-primary)"></i> Joined Accounts</h2>
+        <span id="accCount">0 ID</span>
+      </div>
+      <div class="acc-list" id="accList">
+        <div style="text-align:center;padding:40px 20px;color:var(--text-faint)">
+          <p>Accounts will appear after joining</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-logs">
+      <div class="sec-title">
+        <h2><i class="fa-solid fa-terminal" style="color:var(--accent-secondary)"></i> System Logs</h2>
+      </div>
+      <div class="log-stream" id="logStream">
+        <div style="color:var(--text-faint);text-align:center;padding:30px">No logs yet</div>
+      </div>
+    </section>
+  </div>
+
+  <nav class="tabbar">
+    <button class="tab active" data-screen="main"><i class="fa-solid fa-shield-halved"></i><span>Guild</span></button>
+    <button class="tab" data-screen="accounts"><i class="fa-solid fa-user-astronaut"></i><span>Accounts</span></button>
+    <button class="tab" data-screen="logs"><i class="fa-solid fa-terminal"></i><span>Logs</span></button>
+  </nav>
+
+  <div class="toast-wrap" id="toastWrap"></div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = t => String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const num = n => Number(n||0).toLocaleString('en-US');
+let currentTab = 'main';
+let pollTimer = null;
+
+function toast(msg, type='info'){
+  const icons = { info:'fa-circle-info', success:'fa-circle-check', error:'fa-circle-xmark', warn:'fa-triangle-exclamation' };
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.innerHTML = `<i class="fa-solid ${icons[type]||icons.info}"></i><span>${esc(msg)}</span>`;
+  $('toastWrap').appendChild(el);
+  setTimeout(() => { el.style.transition='.3s'; el.style.opacity='0'; setTimeout(() => el.remove(), 320); }, 2600);
+}
+
+async function fetchGuildInfo(){
+  const gid = $('guildIdInput').value.trim();
+  if(!gid || !/^\d+$/.test(gid)){ toast('Enter valid Guild ID', 'error'); return; }
+  toast('Fetching guild info...', 'info');
+  try{
+    const r = await fetch(`/api/guild/info?guild_id=${gid}`);
+    const d = await r.json();
+    if(d.status === 'ok' && d.guild){
+      const g = d.guild;
+      $('gName').textContent = g.name || '—';
+      $('gId').textContent = g.id || gid;
+      $('gLevel').textContent = g.level || 1;
+      $('gMembers').textContent = `${g.member_count||0}/${g.capacity||50}`;
+      $('gGlory').textContent = num(g.glory);
+      $('guildCard').classList.add('show');
+      toast(`✅ ${g.name}`, 'success');
+    } else {
+      toast('Guild not found', 'error');
+    }
+  }catch(e){ toast('Fetch failed: ' + e.message, 'error'); }
+}
+
+async function startBot(numBots){
+  const gid = $('guildIdInput').value.trim();
+  if(!gid || !/^\d+$/.test(gid)){ toast('Enter Guild ID first', 'error'); return; }
+
+  toast(`Joining ${numBots} bots to guild ${gid}...`, 'info');
+
+  try{
+    const r = await fetch('/api/guild/start_join', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ guild_id: gid, num_bots: numBots })
+    });
+    const d = await r.json();
+    if(d.status === 'ok'){
+      toast(`🔥 Joining ${d.pending} accounts in background`, 'success');
+      if(pollTimer) clearInterval(pollTimer);
+      pollTimer = setInterval(pollStatus, 1500);
+      pollStatus();
+    } else {
+      toast('Error: ' + (d.error||'unknown'), 'error');
+    }
+  }catch(e){ toast('Network error: ' + e.message, 'error'); }
+}
+
+async function resetGuild(){
+  if(!confirm('Clear joined_uids.json? All accounts will be re-eligible.')) return;
+  try{
+    await fetch('/api/guild/reset', { method:'POST' });
+    toast('✅ Joined list cleared', 'success');
+    pollStatus();
+  }catch(e){ toast('Failed: ' + e.message, 'error'); }
+}
+
+async function pollStatus(){
+  try{
+    const r = await fetch('/api/guild/status');
+    const d = await r.json();
+    if(d.status === 'ok' && d.state) renderStatus(d.state);
+
+    // Also fetch squad status
+    const r2 = await fetch('/api/squad/status');
+    const d2 = await r2.json();
+    if(d2.status === 'ok'){
+      $('sSquad').textContent = d2.data.total_squads;
+    }
+  }catch(e){}
+}
+
+function renderStatus(s){
+  const joined = s.joined_accounts || {};
+  const total = Object.keys(joined).length;
+  $('sJoined').textContent = total;
+  $('progText').textContent = total + ' IDs';
+  $('progSub').textContent = s.guild_id ? `Active guild: ${s.guild_id}` : 'No active guild';
+
+  // Mini log
+  if(Array.isArray(s.logs) && s.logs.length){
+    renderMiniLog(s.logs.slice(-8));
+  }
+
+  // Accounts list
+  renderAccounts(joined);
+}
+
+function renderMiniLog(logs){
+  const mini = $('miniLog');
+  mini.innerHTML = logs.slice().reverse().map(l =>
+    `<div class="row"><span class="log-t">[${l.time||''}]</span><span class="log-${l.level||'info'}">${esc(l.message)}</span></div>`
+  ).join('');
+}
+
+function renderAccounts(joined){
+  const list = $('accList');
+  const entries = Object.entries(joined);
+  if(!entries.length){
+    list.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--text-faint)">
+      <p>No accounts joined yet</p></div>`;
+    $('accCount').textContent = '0 ID';
+    return;
+  }
+  $('accCount').textContent = entries.length + ' ID';
+  list.innerHTML = entries.map(([uid, gid]) => `
+    <div class="acc-card joined">
+      <div class="acc-avatar">${esc(String(uid).slice(-2))}</div>
+      <div class="acc-meta">
+        <h4>UID ${esc(uid)}</h4>
+        <span>Guild: ${esc(gid)}</span>
+      </div>
+      <div class="acc-state state-joined">JOINED</div>
+    </div>
+  `).join('');
+}
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const target = tab.dataset.screen;
+    currentTab = target;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    $('screen-' + target).classList.add('active');
+    if(target === 'logs'){
+      fetch('/api/guild/status').then(r=>r.json()).then(d=>{
+        if(d.status === 'ok' && d.state.logs){
+          const stream = $('logStream');
+          stream.innerHTML = d.state.logs.slice(-100).reverse().map(l =>
+            `<div class="log-item"><span class="log-t">[${l.time||''}]</span><span class="log-${l.level||'info'}">${esc(l.message)}</span></div>`
+          ).join('');
+        }
+      });
+    }
+  });
+});
+
+async function boot(){
+  pollStatus();
+  setInterval(pollStatus, 3000);
+  toast('HACKRR Guild Glory Bot ready', 'success');
+}
+boot();
+</script>
+</body>
+</html>
